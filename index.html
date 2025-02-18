@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+    <title>PINTURILLO</title>
+</head>
+<body>
+    <div class="titulo">
+        <span class="letra">P</span>
+        <span class="letra">I</span>
+        <span class="letra">N</span>
+        <span class="letra">T</span>
+        <span class="letra">U</span>
+        <span class="letra">R</span>
+        <span class="letra">I</span>
+        <span class="letra">L</span>
+        <span class="letra">L</span>
+        <span class="letra">O</span>
+    </div>
+    <div class="contenedor">
+        <div class="puntos">
+            <h2>Puntuaciones</h2>
+            <p><strong>Jugador 1:</strong> <span id="puntosJ1">0</span></p>
+            <p><strong>Jugador 2:</strong> <span id="puntosJ2">0</span></p>
+            <p id="turnoActual">Turno de: <span id="turno">Jugador 1</span></p>
+        </div>
+        
+        <div class="dibujo">
+            <h2>Dibujo</h2>
+            <canvas id="pizarra" width="500" height="300"></canvas>
+            <div class="controles">
+                <label for="color">Color:</label>
+                <input type="color" id="color">
+                <button id="borrar" class="btn">Borrar</button>
+            </div>
+        </div>
+
+        <div class="respuesta">
+            <h2>Respuesta</h2>
+            <p id="palabra">Palabra: <span id="palabraSecreta">?????</span></p>
+            <input type="text" id="respuesta" placeholder="Escribe aquí...">
+            <button id="enviar" class="btn">Enviar</button>
+            <p id="mensaje"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
