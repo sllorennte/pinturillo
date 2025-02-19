@@ -52,7 +52,6 @@ function dibujar(e){
 }
 
 // Comprobación de respuesta
-// Comprobación de respuesta mejorada
 enviarBtn.addEventListener("click", ()=>{
     let respuesta = inputRespuesta.value.toLowerCase().trim();
     
