@@ -1,8 +1,8 @@
-let turno = 1;
-let puntosJ1 = 0;
-let puntosJ2 = 0;
-let dibujando = false;
-let palabra = "";
+let turno=1;
+let puntosJ1=0;
+let puntosJ2=0;
+let dibujando=false;
+let palabra="";
 
 // Canvas
 const canvas = document.getElementById("pizarra");
@@ -40,7 +40,7 @@ borrarBtn.addEventListener("click", () => {
     dibujado = false;
 });
 
-function dibujar(e) {
+function dibujar(e){
     if (!dibujando) return;
     dibujado = true;
     ctx.lineWidth = 5;
@@ -52,31 +52,38 @@ function dibujar(e) {
 }
 
 // Comprobación de respuesta
-enviarBtn.addEventListener("click", () => {
+// Comprobación de respuesta mejorada
+enviarBtn.addEventListener("click", ()=>{
     let respuesta = inputRespuesta.value.toLowerCase().trim();
-    if (respuesta === palabra.toLowerCase()) {
+    
+    if (respuesta === palabra.toLowerCase()){
         mensaje.textContent = "¡Correcto!";
+        mensaje.className = "mensaje correcto"; // Aplica estilo verde
+
         if (turno === 1) puntosJ2++;
         else puntosJ1++;
 
-        reiniciarTurno();
-    } else {
-        mensaje.textContent = "Incorrecto.";
+        setTimeout(reiniciarTurno, 1500); // Espera 1.5 segundos antes de cambiar de turno
+    } else{
+        mensaje.textContent= "Incorrecto, intenta de nuevo.";
+        mensaje.className= "mensaje incorrecto"; // Aplica estilo rojo
     }
+
+    inputRespuesta.value= ""; // Limpiar el campo de respuesta
 });
 
 // Cambio de turno y modo trampa
-function reiniciarTurno() {
-    if (!dibujado) {
-        mensaje.textContent = `Modo trampa activado. ${turno === 1 ? "Jugador 1" : "Jugador 2"} pierde.`;
+function reiniciarTurno(){
+    if (!dibujado){
+        mensaje.textContent = `Modo trampa activado. ${turno=== 1 ? "Jugador 1" : "Jugador 2"} pierde.`;
         return;
     }
 
     turno = turno === 1 ? 2 : 1;
-    turnoElem.textContent = `Jugador ${turno}`;
-    palabraElem.textContent = turno === 1 ? palabra : "?????";
-    puntosJ1Elem.textContent = puntosJ1;
-    puntosJ2Elem.textContent = puntosJ2;
+    turnoElem.textContent=`Jugador ${turno}`;
+    palabraElem.textContent=turno===1 ? palabra : "?????";
+    puntosJ1Elem.textContent=puntosJ1;
+    puntosJ2Elem.textContent=puntosJ2;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     dibujado = false;
 }
