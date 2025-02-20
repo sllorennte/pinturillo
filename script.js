@@ -3,6 +3,12 @@ let puntosJ1=0;
 let puntosJ2=0;
 let dibujando=false;
 let palabra="";
+let tiempoMaximo=30;
+let tiempoRestante=tiempoMaximo;
+let intervaloTiempo;
+
+const barraTiempo=document.getElementById("barraTiempo");
+const tiempoRestanteElem=document.getElementById("tiempoRestante")
 
 // Canvas
 const canvas = document.getElementById("pizarra");
@@ -78,11 +84,102 @@ function reiniciarTurno(){
         return;
     }
 
-    turno = turno === 1 ? 2 : 1;
+    turno=turno === 1 ? 2 : 1;
     turnoElem.textContent=`Jugador ${turno}`;
     palabraElem.textContent=turno===1 ? palabra : "?????";
     puntosJ1Elem.textContent=puntosJ1;
     puntosJ2Elem.textContent=puntosJ2;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    dibujado = false;
+    dibujado=false;
 }
+
+function iniciarTemporizador(){
+    tiempoRestante=tiempoMaximo;
+    barraTiempo.style.width="100%";
+    tiempoRestanteElem.textContent=`Tiempo: ${tiempoRestante}s`;
+
+    intervaloTiempo=setInterval(()=>{
+        tiempoRestante--;
+        let porcentaje=(tiempoRestante/tiempoMaximo)*100;
+        barraTiempo.style.width=porcentaje + "%";
+        tiempoRestanteElem.textContent=`Tiempo: ${tiempoRestante}s`;
+
+        if(tiempoRestante<=0){
+            clearInterval(intervaloTiempo);
+            mensaje.textContent=`Tiempo agotado. Turno de ${turno === 1 ? "Jugador 2" : "Jugador 1"}`;
+            mensaje.className="Mensaje incorrecto";
+            setTimeout(reiniciarTurno, 1500);
+        }
+    }, 1000);
+
+}
+
+function reiniciarTurno(){
+    clearInterval(intervaloTiempo);
+
+    if(!dibujado){
+        mensaje.textContent=`Modo trampa activado. ${turno === 1 ? "Jugador 1" : "Jugador 2"} pierde.`;
+        return;
+    }
+    turno=turno===1 ? 2 : 1;
+    turnoElem.textContent=`Jugador ${turno}`;
+    palabraElem.textContent=turno=== 1 ? palabra : "????";
+    puntosJ1Elem.textContent= puntosJ1;
+    puntosJ2Elem.textContent= puntosJ2;
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+    dibujado=false;
+
+    iniciarTemporizador();
+}
+
+let palabrasIA=["casa","perro","gato","avión","elefante","ordenador","pizza","árbol"];
+let intervaloIA;
+
+function turnoIA(){
+    let intentosIA=0;
+    intervaloIA=setInterval(()=>{
+        if(tiempoRestante <=0){
+            clearInterval(intervaloIA);
+            mensaje.textContent="Tiempo agotado, turno para el jugador 1";
+            mensaje.className="Mensaje incorrecto";
+            setTimeout(reiniciarTurno, 1500);
+            return;
+        }
+        let palabraIA=listaPalabrasIA[Math.floor(Math.random() * listaPalabrasIA.length)];
+        mensaje.textContent=`IA: "${palabraIA}"`;
+
+        if(palabraIA.toLowerCase()=== palabra.toLowerCase()){
+            mensaje.textContent="IA ha acertado";
+            mensaje.className="mensaje correcto";
+            puntosJ2++;
+            clearInterval(intervaloIA);
+            setTimeout(reiniciarTurno,1500);
+        }
+        intentosIA++;
+    },3000)
+}
+
+function reiniciarTurno(){
+    clearInterval(intervaloTiempo);
+    clearInterval(intervaloIA);
+
+    if(!dibujado){
+        mensaje.textContent=`Modo trampa activado. ${turno === 1 ? "Jugador 1" : "IA"} pierde.`;
+        return;  
+    }
+    turno=turno=== 1 ? 2 : 1;
+    turnoElem.textContent=turno===1 ? "Jugador" : "IA"
+    palabraElem.textContent=turno===1 ? palabra : "?????"
+    puntosJ1Elem.textContent=puntosJ1;
+    puntosJ2Elem.textContent=puntosJ2;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    dibujado=false;
+
+    iniciarTemporizador();
+    if(turno===2){
+        setTimeout(turnoIA, 2000);
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", iniciarTemporizador);

@@ -58,10 +58,6 @@ body {
     margin: 2px;
 }
 
-.puntos:hover, .dibujo:hover, .respuesta:hover {
-    transform: scale(1.03);
-}
-
 canvas {
     border: 3px solid #333;
     border-radius: 10px;
@@ -126,3 +122,23 @@ canvas {
     color: white;
 }
 
+.temporizador{
+    width: 100%;
+    height: 10px;
+    background-color: #ddd;
+    border-radius: 5px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+#barraTiempo{
+    width: 100%;
+    height: 100%;
+    background-color: #0096FF;
+}
+
+#tiempoRestante{
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+}
