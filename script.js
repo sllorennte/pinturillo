@@ -1,6 +1,5 @@
 let turno=1;
 let puntosJ1=0;
-let puntosJ2=0;
 let dibujando=false;
 let palabra="";
 let tiempoMaximo=30;
@@ -8,34 +7,34 @@ let tiempoRestante=tiempoMaximo;
 let intervaloTiempo;
 
 const barraTiempo=document.getElementById("barraTiempo");
-const tiempoRestanteElem=document.getElementById("tiempoRestante")
+const tiempoRestanteElem=document.getElementById("tiempoRestante");
 
-// Canvas
+//canvas
 const canvas = document.getElementById("pizarra");
 const ctx = canvas.getContext("2d");
 const colorInput = document.getElementById("color");
 const borrarBtn = document.getElementById("borrar");
 
-// Respuesta
-const inputRespuesta = document.getElementById("respuesta");
-const enviarBtn = document.getElementById("enviar");
+//respuesta 
 const mensaje = document.getElementById("mensaje");
-
-// Puntuaciones
 const puntosJ1Elem = document.getElementById("puntosJ1");
-const puntosJ2Elem = document.getElementById("puntosJ2");
-const turnoElem = document.getElementById("turno");
 const palabraElem = document.getElementById("palabraSecreta");
+const mensajesDiv = document.getElementById("mensajes"); //contenedor del chat IA
 
-// Inicializar la palabra desde PHP
-fetch("servidor.php")
-    .then(res => res.json())
-    .then(data => {
-        palabra = data.palabra;
-        palabraElem.textContent = turno === 1 ? palabra : "?????";
-    });
+//lista de palabras
+let palabrasDisponibles = ["casa", "perro", "gato", "avión", "elefante", "ordenador", "pizza", "árbol"];
 
-// Dibujo
+//palabra aleatoria al iniciar el juego
+function nuevaPalabra(){
+    clearInterval(intervaloIA); // Detener IA anterior
+    palabra = palabrasDisponibles[Math.floor(Math.random() * palabrasDisponibles.length)];
+    palabraElem.textContent = palabra;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    iniciarTemporizador();
+    turnoIA();
+}
+
+//dibujo
 let dibujado = false;
 canvas.addEventListener("mousedown", () => dibujando = true);
 canvas.addEventListener("mouseup", () => dibujando = false);
@@ -57,42 +56,7 @@ function dibujar(e){
     ctx.moveTo(e.offsetX, e.offsetY);
 }
 
-// Comprobación de respuesta
-enviarBtn.addEventListener("click", ()=>{
-    let respuesta = inputRespuesta.value.toLowerCase().trim();
-    
-    if (respuesta === palabra.toLowerCase()){
-        mensaje.textContent = "¡Correcto!";
-        mensaje.className = "mensaje correcto"; // Aplica estilo verde
-
-        if (turno === 1) puntosJ2++;
-        else puntosJ1++;
-
-        setTimeout(reiniciarTurno, 1500); // Espera 1.5 segundos antes de cambiar de turno
-    } else{
-        mensaje.textContent= "Incorrecto, intenta de nuevo.";
-        mensaje.className= "mensaje incorrecto"; // Aplica estilo rojo
-    }
-
-    inputRespuesta.value= ""; // Limpiar el campo de respuesta
-});
-
-// Cambio de turno y modo trampa
-function reiniciarTurno(){
-    if (!dibujado){
-        mensaje.textContent = `Modo trampa activado. ${turno=== 1 ? "Jugador 1" : "Jugador 2"} pierde.`;
-        return;
-    }
-
-    turno=turno === 1 ? 2 : 1;
-    turnoElem.textContent=`Jugador ${turno}`;
-    palabraElem.textContent=turno===1 ? palabra : "?????";
-    puntosJ1Elem.textContent=puntosJ1;
-    puntosJ2Elem.textContent=puntosJ2;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    dibujado=false;
-}
-
+//temporizador
 function iniciarTemporizador(){
     tiempoRestante=tiempoMaximo;
     barraTiempo.style.width="100%";
@@ -106,80 +70,55 @@ function iniciarTemporizador(){
 
         if(tiempoRestante<=0){
             clearInterval(intervaloTiempo);
-            mensaje.textContent=`Tiempo agotado. Turno de ${turno === 1 ? "Jugador 2" : "Jugador 1"}`;
-            mensaje.className="Mensaje incorrecto";
-            setTimeout(reiniciarTurno, 1500);
+            agregarMensajeIA("¡Tiempo agotado!");
+            mensaje.textContent="Tiempo agotado, el jugador gana.";
+            mensaje.className="mensaje correcto";
+            puntosJ1++;
+            setTimeout(nuevaPalabra, 1500);
         }
     }, 1000);
-
 }
 
-function reiniciarTurno(){
-    clearInterval(intervaloTiempo);
-
-    if(!dibujado){
-        mensaje.textContent=`Modo trampa activado. ${turno === 1 ? "Jugador 1" : "Jugador 2"} pierde.`;
-        return;
-    }
-    turno=turno===1 ? 2 : 1;
-    turnoElem.textContent=`Jugador ${turno}`;
-    palabraElem.textContent=turno=== 1 ? palabra : "????";
-    puntosJ1Elem.textContent= puntosJ1;
-    puntosJ2Elem.textContent= puntosJ2;
-    ctx.clearRect(0,0, canvas.width, canvas.height);
-    dibujado=false;
-
-    iniciarTemporizador();
+//mostrar mensajes en el chat IA
+function agregarMensajeIA(texto) {
+    const mensajeIA = document.createElement("div");
+    mensajeIA.textContent = `IA: ${texto}`;
+    mensajeIA.classList.add("mensajeIA");
+    mensajesDiv.appendChild(mensajeIA);
+    mensajesDiv.scrollTop = mensajesDiv.scrollHeight; //Auto-scroll
 }
 
 let palabrasIA=["casa","perro","gato","avión","elefante","ordenador","pizza","árbol"];
 let intervaloIA;
 
 function turnoIA(){
+    clearInterval(intervaloIA); //detener intentos anteriores
     let intentosIA=0;
+
     intervaloIA=setInterval(()=>{
         if(tiempoRestante <=0){
             clearInterval(intervaloIA);
-            mensaje.textContent="Tiempo agotado, turno para el jugador 1";
-            mensaje.className="Mensaje incorrecto";
-            setTimeout(reiniciarTurno, 1500);
+            agregarMensajeIA("¡Tiempo agotado!");
+            mensaje.textContent="Tiempo agotado, el jugador gana.";
+            mensaje.className="mensaje correcto";
+            puntosJ1++;
+            setTimeout(nuevaPalabra, 1500);
             return;
         }
-        let palabraIA=listaPalabrasIA[Math.floor(Math.random() * listaPalabrasIA.length)];
-        mensaje.textContent=`IA: "${palabraIA}"`;
+        let palabraIA=palabrasIA[Math.floor(Math.random() * palabrasIA.length)];
+        agregarMensajeIA(`"${palabraIA}"`);
 
         if(palabraIA.toLowerCase()=== palabra.toLowerCase()){
             mensaje.textContent="IA ha acertado";
             mensaje.className="mensaje correcto";
-            puntosJ2++;
+            agregarMensajeIA("¡Adiviné la palabra!");
             clearInterval(intervaloIA);
-            setTimeout(reiniciarTurno,1500);
+            setTimeout(nuevaPalabra,1500);
         }
         intentosIA++;
-    },3000)
+    },3000);
 }
 
-function reiniciarTurno(){
-    clearInterval(intervaloTiempo);
-    clearInterval(intervaloIA);
-
-    if(!dibujado){
-        mensaje.textContent=`Modo trampa activado. ${turno === 1 ? "Jugador 1" : "IA"} pierde.`;
-        return;  
-    }
-    turno=turno=== 1 ? 2 : 1;
-    turnoElem.textContent=turno===1 ? "Jugador" : "IA"
-    palabraElem.textContent=turno===1 ? palabra : "?????"
-    puntosJ1Elem.textContent=puntosJ1;
-    puntosJ2Elem.textContent=puntosJ2;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    dibujado=false;
-
-    iniciarTemporizador();
-    if(turno===2){
-        setTimeout(turnoIA, 2000);
-    }
-}
-
-
-document.addEventListener("DOMContentLoaded", iniciarTemporizador);
+document.addEventListener("DOMContentLoaded", () => {
+    nuevaPalabra();
+});
